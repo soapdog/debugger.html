@@ -2,6 +2,8 @@ const React = require("react");
 const { DOM: dom, PropTypes, Component } = React;
 const ReactDOM = require("react-dom");
 
+import debounce from "lodash/debounce";
+
 require("./Popover.css");
 
 class Popover extends Component {
@@ -30,14 +32,28 @@ class Popover extends Component {
     this.setState({ left, top });
   }
 
+  onMouseLeave() {
+    debounce(
+      function() {
+        // check to see if the cursor is over the element
+        const el = document.querySelectorAll(":hover");
+        const hasLeft = !el.classList.has("popover");
+        if (hasLeft) {
+          this.props.onMouseLeave();
+        }
+      },
+      100
+    );
+  }
+
   render() {
-    const { children, onMouseLeave } = this.props;
+    const { children } = this.props;
     const { top, left } = this.state;
 
     return dom.div(
       {
         className: "popover",
-        onMouseLeave,
+        onMouseLeave: this.onMouseLeave,
         style: { top, left },
       },
       dom.div({ className: "popover-gap" }),
